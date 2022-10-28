@@ -30,8 +30,8 @@ class PlayerViewModel : ViewModel() {
         if (categories != null) {
             setLives(5)
             setPoints(0)
-            newWord()
             setPlaying()
+            newWord()
         }
         else {
             this.status.value = -1
