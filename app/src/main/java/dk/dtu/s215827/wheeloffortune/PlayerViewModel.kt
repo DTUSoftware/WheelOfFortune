@@ -5,6 +5,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONObject
 import kotlin.random.Random
 
+class WheelResult(var type: Int, var points: Int? = null) {
+}
+
 class PlayerViewModel : ViewModel() {
     val currentWord = MutableStateFlow("")
     val currentCategory = MutableStateFlow("")
@@ -14,6 +17,9 @@ class PlayerViewModel : ViewModel() {
     val points = MutableStateFlow(0)
     val status = MutableStateFlow(0)
     val wheelPosition = MutableStateFlow(0f)
+    val currentWheelResult = MutableStateFlow(WheelResult(-1))
+
+    val wheelPositions = HashMap<Float, WheelResult>()
 
 //    val alreadyPlayedWords = MutableStateFlow(emptyList<String>())
 
@@ -23,6 +29,7 @@ class PlayerViewModel : ViewModel() {
     var wordsMap = HashMap<String, List<String>>()
 
     init {
+        // Load wordfile and words
         val wordFile = this::class.java.classLoader?.getResource("words.json")?.readText()
         val categories = wordFile?.let { JSONObject(it) }
 
@@ -39,18 +46,55 @@ class PlayerViewModel : ViewModel() {
             }
             wordsMap[key] = categoryWordsList
         }
+
+        // populate wheel positions
+        wheelPositions[0f] = WheelResult(0, 750)
+        wheelPositions[15f] = WheelResult(1) // lose a turn
+        wheelPositions[30f] = WheelResult(0, 400)
+        wheelPositions[45f] = WheelResult(0, 300)
+        wheelPositions[60f] = WheelResult(0, 900)
+        wheelPositions[75f] = WheelResult(2) // bankrupt
+        wheelPositions[90f] = WheelResult(0, 550)
+        wheelPositions[105f] = WheelResult(0, 200)
+        wheelPositions[120f] = WheelResult(0, 350)
+        wheelPositions[135f] = WheelResult(0, 900)
+        wheelPositions[150f] = WheelResult(0, 150)
+        wheelPositions[165f] = WheelResult(0, 150)
+        wheelPositions[180f] = WheelResult(2) // bankrupt
+        wheelPositions[195f] = WheelResult(0, 600)
+        wheelPositions[210f] = WheelResult(0, 250)
+        wheelPositions[225f] = WheelResult(0, 300)
+        wheelPositions[240f] = WheelResult(0, 700)
+        wheelPositions[255f] = WheelResult(0, 100)
+        wheelPositions[270f] = WheelResult(0, 450)
+        wheelPositions[285f] = WheelResult(0, 5000)
+        wheelPositions[300f] = WheelResult(0, 800)
+        wheelPositions[315f] = WheelResult(0, 250)
+        wheelPositions[330f] = WheelResult(0, 600)
+        wheelPositions[345f] = WheelResult(0, 350)
+
+        currentWheelResult.value = wheelPositions[0f]!!
     }
 
     fun newGame() {
         setLives(5)
         setPoints(0)
-        setPlaying()
-        newWord()
+        spinWheel()
     }
 
     fun spinWheel() {
         status.value = 5
-        wheelPosition.value = (0..360).random().toFloat()
+
+        wheelPosition.value = (wheelPositions.keys).random().toFloat()
+
+        val wheelResult = getWheelResult()
+        if (wheelResult != null) {
+            currentWheelResult.value = wheelResult
+        }
+    }
+
+    fun getWheelResult(): WheelResult? {
+        return wheelPositions[wheelPosition.value]
     }
 
     fun setNotPlaying() {

@@ -93,10 +93,6 @@ fun Word(word: String, revealedCharArray: List<Char>) {
     }
 }
 
-sealed class WheelResult(var label: String, var type: Int, var points: Int) {
-    object ThousandPoints : WheelResult("1000", 0, 1000)
-}
-
 @Composable
 fun Wheel(rotation: Float = 0f) {
     Column(
@@ -129,6 +125,7 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
     val lives by viewModel.lives.collectAsState()
     val points by viewModel.points.collectAsState()
     val currentWheelPosition by viewModel.wheelPosition.collectAsState()
+    val currentWheelResult by viewModel.currentWheelResult.collectAsState()
 
     var guess by remember { mutableStateOf("") }
 
@@ -140,7 +137,8 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
         if (status == 5) {
             // https://nascimpact.medium.com/jetpack-compose-working-with-rotation-animation-aeddc5899b28
             rotation.animateTo(
-                targetValue = currentRotation + 360*2 + currentWheelPosition,
+                // Spin from current rotation to reset, then two times around, and to wanted position
+                targetValue = currentRotation + (360-(currentRotation%360)) + 360*2 - currentWheelPosition,
                 animationSpec = tween(
                     durationMillis = 2500,
                     easing = LinearOutSlowInEasing
@@ -148,11 +146,15 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
             ) {
                 currentRotation = value
             }
+
+            viewModel.setPlaying()
+            viewModel.newWord()
         }
     }
 
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Wheel of Fortune")
+        Text(text = "$currentWheelPosition = ${currentWheelResult.type}: ${currentWheelResult.points}")
         Text(text = "$lives lives | $points points")
 
         Text(text = currentWord)
@@ -200,16 +202,10 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                 }) {
                     Text(text = "Guess")
                 }
-            } else if (status != 4) {
+            } else if (status != 4 && status != 5) {
                 Button(onClick = { viewModel.newGame() }) {
                     Text(text = if (status != 0) "Play Again" else "Play")
                 }
-            }
-
-            Button(onClick = {
-                viewModel.spinWheel()
-            }) {
-                Text(text = "Spin")
             }
         }
     }
