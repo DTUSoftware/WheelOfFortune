@@ -13,6 +13,7 @@ class PlayerViewModel : ViewModel() {
     val lives = MutableStateFlow(0)
     val points = MutableStateFlow(0)
     val status = MutableStateFlow(0)
+    val wheelPosition = MutableStateFlow(0f)
 
 //    val alreadyPlayedWords = MutableStateFlow(emptyList<String>())
 
@@ -45,6 +46,11 @@ class PlayerViewModel : ViewModel() {
         setPoints(0)
         setPlaying()
         newWord()
+    }
+
+    fun spinWheel() {
+        status.value = 5
+        wheelPosition.value = (0..360).random().toFloat()
     }
 
     fun setNotPlaying() {
