@@ -77,8 +77,6 @@ fun CharBox(char: Char?) {
 
 @Composable
 fun Word(word: String, revealedCharArray: List<Char>) {
-    Text(text = word)
-
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
@@ -110,6 +108,8 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Wheel of Fortune")
         Text(text = "$lives lives | $points points")
+
+        Text(text = currentWord)
         Text(text = revealedChars.toString())
 
         when (status) {
@@ -142,13 +142,10 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
 
             if (status == 1) {
                 TextField(value = guess, onValueChange = {
-                    // Match for letters
-                    if (it.matches(Regex("[a-zA-z\\s]*"))) {
-                        guess = it.take(1).uppercase()
-                    }
+                    guess = it.uppercase()
                 })
                 Button(onClick = {
-                    viewModel.guessChar(guess[0])
+                    viewModel.guess(guess)
                     guess = ""
                 }) {
                     Text(text = "Guess")

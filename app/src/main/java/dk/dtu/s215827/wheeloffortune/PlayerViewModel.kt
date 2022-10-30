@@ -98,19 +98,44 @@ class PlayerViewModel : ViewModel() {
         }
     }
 
-    fun guessChar(char: Char) {
-        if (isCharInWord(char) && !isRevealed(char)) {
-            revealChar(char)
-            addPoints(currentPossibleEarning.value)
-            setPossibleEarnings(0)
+    fun guess(guessWord: String) {
+        if (guessWord.isNotEmpty()) {
+            if (guessWord.length == 1) {
+                val char = guessWord[0]
+                if (isCharInWord(char) && !isRevealed(char)) {
+                    revealChar(char)
+                    addPoints(currentPossibleEarning.value)
+                    setPossibleEarnings(0)
 
-            if (revealedLetters.value.size == currentWord.value.replace(" ", "").toList()
-                    .distinct().size
-            ) {
-                setWon()
+                    if (revealedLetters.value.size == currentWord.value.replace(" ", "").toList()
+                            .distinct().size
+                    ) {
+                        setWon()
+                    }
+                } else {
+                    subtractLives(1)
+                }
             }
-        } else {
-            subtractLives(1)
+            else {
+                if (guessWord.replace(" ", "") == currentWord.value.replace(" ", "")) {
+                    // reveal all chars
+                    var i = 0
+                    while (i < guessWord.length) {
+                        val char = guessWord[i]
+                        if (isCharInWord(char) && !isRevealed(char)) {
+                            revealChar(char)
+                        }
+                        i++
+                    }
+                    addPoints(currentPossibleEarning.value)
+                    setPossibleEarnings(0)
+                    setWon()
+                }
+                else {
+                    subtractLives(1)
+                }
+            }
+
         }
     }
 
