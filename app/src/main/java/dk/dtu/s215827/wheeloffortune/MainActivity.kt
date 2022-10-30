@@ -106,7 +106,7 @@ fun Wheel(rotation: Float = 0f) {
         Icon(
             painter = rememberVectorPainter(image = Icons.Default.KeyboardArrowDown),
             contentDescription = "Wheel Arrow",
-            tint = Color.Red,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(50.dp)
         )
         Image(
