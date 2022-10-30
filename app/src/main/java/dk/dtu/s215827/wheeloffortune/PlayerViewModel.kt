@@ -104,11 +104,12 @@ class PlayerViewModel : ViewModel() {
             addPoints(currentPossibleEarning.value)
             setPossibleEarnings(0)
 
-            if (revealedLetters.value.size == currentWord.value.replace(" ", "").toList().distinct().size) {
+            if (revealedLetters.value.size == currentWord.value.replace(" ", "").toList()
+                    .distinct().size
+            ) {
                 setWon()
             }
-        }
-        else {
+        } else {
             subtractLives(1)
         }
     }
