@@ -14,28 +14,37 @@ class PlayerViewModel : ViewModel() {
     val points = MutableStateFlow(0)
     val status = MutableStateFlow(0)
 
-    val alreadyPlayedWords = MutableStateFlow(emptyList<String>())
+//    val alreadyPlayedWords = MutableStateFlow(emptyList<String>())
 
     val randomSeed = Random(System.currentTimeMillis())
 
-    val wordFile = this::class.java.classLoader?.getResource("words.json")?.readText()
-    val categories = wordFile?.let { JSONObject(it) }
     var wordsTotal = 0
+    var wordsMap = HashMap<String, List<String>>()
 
     init {
-        categories?.keys()?.forEach { key -> wordsTotal += categories.getJSONArray(key).length() }
+        val wordFile = this::class.java.classLoader?.getResource("words.json")?.readText()
+        val categories = wordFile?.let { JSONObject(it) }
+
+        categories?.keys()?.forEach { key ->
+            val categoryWords = categories.getJSONArray(key)
+            wordsTotal += categoryWords.length()
+
+            var categoryWordsList = emptyList<String>()
+            var i = 0
+            while (i < categoryWords.length()) {
+                val word = categoryWords.get(i) as String
+                categoryWordsList = categoryWordsList.plus(word)
+                i++
+            }
+            wordsMap[key] = categoryWordsList
+        }
     }
 
     fun newGame() {
-        if (categories != null) {
-            setLives(5)
-            setPoints(0)
-            setPlaying()
-            newWord()
-        }
-        else {
-            this.status.value = -1
-        }
+        setLives(5)
+        setPoints(0)
+        setPlaying()
+        newWord()
     }
 
     fun setNotPlaying() {
@@ -61,7 +70,7 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun checkDone(): Boolean {
-        if (this.alreadyPlayedWords.value.size == wordsTotal) {
+        if (wordsTotal <= 0) {
             setDone()
             return true
         }
@@ -71,22 +80,20 @@ class PlayerViewModel : ViewModel() {
     fun newWord() {
         if (!checkDone()) {
             this.revealedLetters.value = emptyList()
-            val category = categories?.keys()?.asSequence()?.elementAt((0 until categories.length()).random(randomSeed))
-            if (category != null) {
-                val words = categories?.getJSONArray(category)
+            val category = wordsMap.keys.elementAt((0 until wordsMap.size).random(randomSeed))
+            val words = wordsMap[category]
 
-                if (words != null) {
-                    var word = ""
+            if (!words.isNullOrEmpty()) {
+                val word = words[(words.indices).random(randomSeed)]
 
-                    // TODO: this can loop forever, ohno
-                    while (word.isEmpty() || this.alreadyPlayedWords.value.contains(word)) {
-                        word = (words.get((0 until words.length()).random(randomSeed)) as String).uppercase()
-                    }
-
-                    this.currentWord.value = word
-                    this.currentCategory.value = category
-                    this.alreadyPlayedWords.value = this.alreadyPlayedWords.value.plus(this.currentWord.value)
+                this.currentWord.value = word.uppercase()
+                this.currentCategory.value = category
+//                this.alreadyPlayedWords.value = this.alreadyPlayedWords.value.plus(this.currentWord.value)
+                wordsMap[category] = words.minus(word)
+                if (wordsMap[category]?.isEmpty() == true) {
+                    wordsMap.remove(category)
                 }
+                wordsTotal--
             }
         }
     }

@@ -64,6 +64,8 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
 
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Wheel of Fortune")
+        Text(text = viewModel.wordsMap.toString())
+        Text(text = viewModel.wordsTotal.toString())
         Text(text = revealedChars.toString())
 
         when (status) {
