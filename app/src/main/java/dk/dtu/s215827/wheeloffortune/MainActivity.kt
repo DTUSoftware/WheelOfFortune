@@ -137,7 +137,8 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
     val rotation = remember { Animatable(currentRotation) }
 
     LaunchedEffect(currentWheelPosition) {
-        if (status == 5) {
+        // Keep the check for status because otherwise the wheel will spin at startup
+        if (status == GameStatus.WHEEL_SPINNING) {
             // https://nascimpact.medium.com/jetpack-compose-working-with-rotation-animation-aeddc5899b28
             rotation.animateTo(
                 // Spin from current rotation to reset, then two times around, and to wanted position
@@ -160,7 +161,6 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
     }
 
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = "Wheel of Fortune")
 //        Text(text = "$currentWheelPosition = ${currentWheelResult.type}: ${currentWheelResult.points}")
         Text(text = "$lives lives | $points points")
 
@@ -168,17 +168,23 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
 //        Text(text = revealedChars.toString())
 
         when (status) {
-            2 -> {
-                Text(text = "GAME WON!!!")
+            GameStatus.WON -> {
+                Text(text = "CORRECT!")
             }
 
-            3 -> {
+            GameStatus.LOST -> {
                 Text(text = "GAME LOST...")
             }
 
-            4 -> {
-                Text(text = "Wow, you completed them all!")
+            GameStatus.DONE -> {
+                Text(text = "Wow, you completed them all! Try again?")
             }
+
+            GameStatus.WHEEL_SPINNING -> {
+                Text(text = "Spinning...")
+            }
+
+            else -> {}
         }
 
         Column(
@@ -191,10 +197,13 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
             Word(currentWord, revealedChars)
 
             if (currentCategory.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(5.dp))
                 Text(text = currentCategory)
             }
 
-            if (status == 1) {
+            Spacer(modifier = Modifier.height(20.dp))
+
+            if (status == GameStatus.PLAYING) {
                 TextField(value = guess, onValueChange = {
                     if (it.length > 0) {
                         if (it[it.length - 1] == '\n') {
@@ -214,17 +223,17 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                 }) {
                     Text(text = "Guess")
                 }
-            } else if (status != 4 && status != 5) {
-                if (status == 2 || status == 6) {
+            } else if (status != GameStatus.DONE && status != GameStatus.WHEEL_SPINNING) {
+                if (status == GameStatus.WON || status == GameStatus.TURN_LOST) {
                     Button(onClick = { viewModel.spinWheel() }) {
                         Text(text = "Spin Wheel")
                     }
                 } else {
                     Button(onClick = { viewModel.newGame() }) {
-                        Text(text = if (status != 0) "Play Again" else "Play")
+                        Text(text = if (status != GameStatus.NOT_PLAYING) "Play Again" else "Play")
                     }
                 }
-            } else if (status == 4) {
+            } else if (status == GameStatus.DONE) {
                 Button(onClick = { viewModel.populateWords(); viewModel.newGame() }) {
                     Text(text = "Repopulate and start a new game?")
                 }

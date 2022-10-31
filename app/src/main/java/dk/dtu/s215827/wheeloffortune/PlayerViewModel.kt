@@ -13,6 +13,17 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONObject
 import kotlin.random.Random
 
+enum class GameStatus {
+    ERROR,
+    NOT_PLAYING,
+    PLAYING,
+    WON,
+    LOST,
+    DONE,
+    WHEEL_SPINNING,
+    TURN_LOST
+}
+
 class WheelResult(var type: Int, var points: Int? = null) {
     fun applyResult(viewModel: PlayerViewModel) {
         when (type) {
@@ -38,7 +49,7 @@ class PlayerViewModel : ViewModel() {
     val revealedLetters = MutableStateFlow(emptyList<Char>())
     val lives = MutableStateFlow(0)
     val points = MutableStateFlow(0)
-    val status = MutableStateFlow(0)
+    val status = MutableStateFlow(GameStatus.NOT_PLAYING)
     val wheelPosition = MutableStateFlow(0f)
     val currentWheelResult = MutableStateFlow(WheelResult(-1))
 
@@ -114,7 +125,7 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun spinWheel() {
-        status.value = 5
+        status.value = GameStatus.WHEEL_SPINNING
 
         wheelPosition.value = (wheelPositions.keys).random(randomSeed).toFloat()
 
@@ -129,31 +140,31 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun loseATurn() {
+        this.status.value = GameStatus.TURN_LOST
         subtractLives(1)
-        this.status.value = 6
 
     }
 
     fun setNotPlaying() {
-        this.status.value = 0
+        this.status.value = GameStatus.NOT_PLAYING
     }
 
     fun setPlaying() {
-        this.status.value = 1
+        this.status.value = GameStatus.PLAYING
     }
 
     fun setWon() {
-        this.status.value = 2
+        this.status.value = GameStatus.WON
         checkDone()
     }
 
     fun setLost() {
-        this.status.value = 3
+        this.status.value = GameStatus.LOST
         checkDone()
     }
 
     fun setDone() {
-        this.status.value = 4
+        this.status.value = GameStatus.DONE
     }
 
     fun checkDone(): Boolean {
@@ -254,9 +265,9 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun doBankruptcy() {
+        this.status.value = GameStatus.TURN_LOST
         this.points.value = 0
 //        setLost()
-        this.status.value = 6
     }
 
     fun addLives(lives: Int) {
