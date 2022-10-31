@@ -1,11 +1,34 @@
 package dk.dtu.s215827.wheeloffortune
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONObject
 import kotlin.random.Random
 
 class WheelResult(var type: Int, var points: Int? = null) {
+    fun applyResult(viewModel: PlayerViewModel) {
+        when (type) {
+            0 -> {
+                points?.let { viewModel.setPossibleEarnings(it) }
+            }
+
+            1 -> {
+                viewModel.loseATurn()
+            }
+
+            2 -> {
+                viewModel.doBankruptcy()
+            }
+        }
+    }
 }
 
 class PlayerViewModel : ViewModel() {
@@ -19,6 +42,10 @@ class PlayerViewModel : ViewModel() {
     val wheelPosition = MutableStateFlow(0f)
     val currentWheelResult = MutableStateFlow(WheelResult(-1))
 
+    // https://nascimpact.medium.com/jetpack-compose-working-with-rotation-animation-aeddc5899b28
+    var currentRotation = MutableStateFlow(0f)
+    val rotation = MutableStateFlow(Animatable(currentRotation.value))
+
     val wheelPositions = HashMap<Float, WheelResult>()
 
 //    val alreadyPlayedWords = MutableStateFlow(emptyList<String>())
@@ -29,23 +56,7 @@ class PlayerViewModel : ViewModel() {
     var wordsMap = HashMap<String, List<String>>()
 
     init {
-        // Load wordfile and words
-        val wordFile = this::class.java.classLoader?.getResource("words.json")?.readText()
-        val categories = wordFile?.let { JSONObject(it) }
-
-        categories?.keys()?.forEach { key ->
-            val categoryWords = categories.getJSONArray(key)
-            wordsTotal += categoryWords.length()
-
-            var categoryWordsList = emptyList<String>()
-            var i = 0
-            while (i < categoryWords.length()) {
-                val word = categoryWords.get(i) as String
-                categoryWordsList = categoryWordsList.plus(word)
-                i++
-            }
-            wordsMap[key] = categoryWordsList
-        }
+        populateWords()
 
         // populate wheel positions
         wheelPositions[0f] = WheelResult(0, 750)
@@ -76,6 +87,26 @@ class PlayerViewModel : ViewModel() {
         currentWheelResult.value = wheelPositions[0f]!!
     }
 
+    fun populateWords() {
+        // Load wordfile and words
+        val wordFile = this::class.java.classLoader?.getResource("words.json")?.readText()
+        val categories = wordFile?.let { JSONObject(it) }
+
+        categories?.keys()?.forEach { key ->
+            val categoryWords = categories.getJSONArray(key)
+            wordsTotal += categoryWords.length()
+
+            var categoryWordsList = emptyList<String>()
+            var i = 0
+            while (i < categoryWords.length()) {
+                val word = categoryWords.get(i) as String
+                categoryWordsList = categoryWordsList.plus(word)
+                i++
+            }
+            wordsMap[key] = categoryWordsList
+        }
+    }
+
     fun newGame() {
         setLives(5)
         setPoints(0)
@@ -85,7 +116,7 @@ class PlayerViewModel : ViewModel() {
     fun spinWheel() {
         status.value = 5
 
-        wheelPosition.value = (wheelPositions.keys).random().toFloat()
+        wheelPosition.value = (wheelPositions.keys).random(randomSeed).toFloat()
 
         val wheelResult = getWheelResult()
         if (wheelResult != null) {
@@ -95,6 +126,12 @@ class PlayerViewModel : ViewModel() {
 
     fun getWheelResult(): WheelResult? {
         return wheelPositions[wheelPosition.value]
+    }
+
+    fun loseATurn() {
+        subtractLives(1)
+        this.status.value = 6
+
     }
 
     fun setNotPlaying() {
@@ -165,8 +202,7 @@ class PlayerViewModel : ViewModel() {
                 } else {
                     subtractLives(1)
                 }
-            }
-            else {
+            } else {
                 if (guessWord.replace(" ", "") == currentWord.value.replace(" ", "")) {
                     // reveal all chars
                     var i = 0
@@ -180,8 +216,7 @@ class PlayerViewModel : ViewModel() {
                     addPoints(currentPossibleEarning.value)
                     setPossibleEarnings(0)
                     setWon()
-                }
-                else {
+                } else {
                     subtractLives(1)
                 }
             }
@@ -220,7 +255,8 @@ class PlayerViewModel : ViewModel() {
 
     fun doBankruptcy() {
         this.points.value = 0
-        setLost()
+//        setLost()
+        this.status.value = 6
     }
 
     fun addLives(lives: Int) {

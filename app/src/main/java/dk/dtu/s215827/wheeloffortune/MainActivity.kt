@@ -97,8 +97,11 @@ fun Word(word: String, revealedCharArray: List<Char>) {
 fun Wheel(rotation: Float = 0f) {
     Column(
         Modifier
-            .fillMaxWidth(0.9f)
-            .padding(0.dp, 0.dp, 0.dp, 10.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+            .fillMaxWidth()
+            .padding(0.dp, 0.dp, 0.dp, 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
         Icon(
             painter = rememberVectorPainter(image = Icons.Default.KeyboardArrowDown),
             contentDescription = "Wheel Arrow",
@@ -138,7 +141,7 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
             // https://nascimpact.medium.com/jetpack-compose-working-with-rotation-animation-aeddc5899b28
             rotation.animateTo(
                 // Spin from current rotation to reset, then two times around, and to wanted position
-                targetValue = currentRotation + (360-(currentRotation%360)) + 360*2 - currentWheelPosition,
+                targetValue = currentRotation + (360 - (currentRotation % 360)) + 360 * 2 - currentWheelPosition,
                 animationSpec = tween(
                     durationMillis = 2500,
                     easing = LinearOutSlowInEasing
@@ -147,18 +150,22 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                 currentRotation = value
             }
 
-            viewModel.setPlaying()
-            viewModel.newWord()
+            currentWheelResult.applyResult(viewModel)
+
+            if (currentWheelResult.type == 0) {
+                viewModel.setPlaying()
+                viewModel.newWord()
+            }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = "Wheel of Fortune")
-        Text(text = "$currentWheelPosition = ${currentWheelResult.type}: ${currentWheelResult.points}")
+//        Text(text = "$currentWheelPosition = ${currentWheelResult.type}: ${currentWheelResult.points}")
         Text(text = "$lives lives | $points points")
 
-        Text(text = currentWord)
-        Text(text = revealedChars.toString())
+//        Text(text = currentWord)
+//        Text(text = revealedChars.toString())
 
         when (status) {
             2 -> {
@@ -203,8 +210,18 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                     Text(text = "Guess")
                 }
             } else if (status != 4 && status != 5) {
-                Button(onClick = { viewModel.newGame() }) {
-                    Text(text = if (status != 0) "Play Again" else "Play")
+                if (status == 2 || status == 6) {
+                    Button(onClick = { viewModel.spinWheel() }) {
+                        Text(text = "Spin Wheel")
+                    }
+                } else {
+                    Button(onClick = { viewModel.newGame() }) {
+                        Text(text = if (status != 0) "Play Again" else "Play")
+                    }
+                }
+            } else if (status == 4) {
+                Button(onClick = { viewModel.populateWords(); viewModel.newGame() }) {
+                    Text(text = "Repopulate and start a new game?")
                 }
             }
         }
