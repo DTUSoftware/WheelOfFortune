@@ -196,11 +196,16 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
 
             if (status == 1) {
                 TextField(value = guess, onValueChange = {
-                    if (it[it.length - 1] == '\n') {
-                        viewModel.guess(guess)
-                        guess = ""
-                    } else {
-                        guess = it.uppercase()
+                    if (it.length > 0) {
+                        if (it[it.length - 1] == '\n') {
+                            viewModel.guess(guess)
+                            guess = ""
+                        } else {
+                            guess = it.uppercase()
+                        }
+                    }
+                    else {
+                        guess = it
                     }
                 })
                 Button(onClick = {
