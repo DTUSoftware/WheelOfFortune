@@ -305,5 +305,4 @@ class PlayerViewModel : ViewModel() {
     fun setLives(lives: Int) {
         this.lives.value = lives
     }
-
 }
