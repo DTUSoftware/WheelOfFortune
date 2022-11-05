@@ -14,13 +14,9 @@ import dk.dtu.s215827.wheeloffortune.R
 fun ActionButton(viewModel: PlayerViewModel) {
     val status by viewModel.status.collectAsState()
 
-    // If playing, show word guesser
-    if (status == GameStatus.PLAYING) {
-        WordGuessing(viewModel)
-    }
     // If not done playing (finished all words), and wheel not already spinning,
     // allow starting a new game or spinning the wheel
-    else if (status != GameStatus.DONE && status != GameStatus.WHEEL_SPINNING) {
+    if (status != GameStatus.DONE && status != GameStatus.WHEEL_SPINNING && status != GameStatus.PLAYING) {
         if (status == GameStatus.TURN_DONE_CORRECT || status == GameStatus.TURN_DONE_WRONG || status == GameStatus.TURN_DONE_LOST || status == GameStatus.NEW_GAME) {
             Button(onClick = { viewModel.spinWheel() }) {
                 Text(text = stringResource(R.string.spin_wheel_button))

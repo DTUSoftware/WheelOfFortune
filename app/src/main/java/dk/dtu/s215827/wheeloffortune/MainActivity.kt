@@ -1,13 +1,18 @@
 package dk.dtu.s215827.wheeloffortune
 
+import android.app.Activity
+import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dk.dtu.s215827.wheeloffortune.components.*
@@ -33,21 +38,43 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WheelOfFortune(viewModel: PlayerViewModel) {
-    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         StatusBar(viewModel)
 
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Wheel(viewModel)
+        // TODO: Fix landscape orientation - it looks kinda wonky
+        if (LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE) {
+            Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Wheel(viewModel)
 
-            Word(viewModel)
+//                    Spacer(modifier = Modifier.height(20.dp))
 
-            Spacer(modifier = Modifier.height(20.dp))
+                    ActionButton(viewModel)
+                }
+                Word(viewModel)
+            }
 
-            ActionButton(viewModel)
+        }
+        else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Wheel(viewModel)
+
+                Word(viewModel)
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                ActionButton(viewModel)
+            }
         }
     }
 }

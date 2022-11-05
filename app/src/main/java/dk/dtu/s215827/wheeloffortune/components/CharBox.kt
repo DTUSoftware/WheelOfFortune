@@ -18,7 +18,14 @@ fun CharBox(char: Char?) {
     if (char != null) {
         if (char == ' ') {
             // Fill with a spacer to simulate a space
-            Spacer(modifier = Modifier.width(20.dp))
+            // We fill in an actual char, but make it invisible, just to get the correct spacing
+            Text(
+                text = "_",
+                modifier = Modifier.width(40.dp),
+                color = Color.Transparent,
+                fontSize = 10.em,
+                textAlign = TextAlign.Center
+            )
         } else {
             // Show the letter
             Text(
