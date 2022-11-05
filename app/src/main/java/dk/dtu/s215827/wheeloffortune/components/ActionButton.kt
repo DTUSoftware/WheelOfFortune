@@ -5,8 +5,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import dk.dtu.s215827.wheeloffortune.GameStatus
 import dk.dtu.s215827.wheeloffortune.PlayerViewModel
+import dk.dtu.s215827.wheeloffortune.R
 
 @Composable
 fun ActionButton(viewModel: PlayerViewModel) {
@@ -21,11 +23,15 @@ fun ActionButton(viewModel: PlayerViewModel) {
     else if (status != GameStatus.DONE && status != GameStatus.WHEEL_SPINNING) {
         if (status == GameStatus.TURN_DONE_CORRECT || status == GameStatus.TURN_DONE_WRONG || status == GameStatus.TURN_DONE_LOST || status == GameStatus.NEW_GAME) {
             Button(onClick = { viewModel.spinWheel() }) {
-                Text(text = "Spin Wheel")
+                Text(text = stringResource(R.string.spin_wheel_button))
             }
         } else {
             Button(onClick = { viewModel.newGame() }) {
-                Text(text = if (status != GameStatus.NOT_PLAYING) "Play Again" else "Play")
+                Text(
+                    text = if (status != GameStatus.NOT_PLAYING) stringResource(R.string.play_again_button) else stringResource(
+                        R.string.play_button
+                    )
+                )
             }
         }
     }
@@ -33,7 +39,7 @@ fun ActionButton(viewModel: PlayerViewModel) {
     // repopulate the words and start from scratch
     else if (status == GameStatus.DONE) {
         Button(onClick = { viewModel.populateWords(); viewModel.newGame() }) {
-            Text(text = "Repopulate and start a new game?")
+            Text(text = stringResource(R.string.repopulate_button))
         }
     }
 }

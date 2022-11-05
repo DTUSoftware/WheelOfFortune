@@ -11,7 +11,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dk.dtu.s215827.wheeloffortune.GameStatus
 import dk.dtu.s215827.wheeloffortune.PlayerViewModel
@@ -25,52 +27,73 @@ fun StatusBar(viewModel: PlayerViewModel) {
     val possibleEarnings by viewModel.currentPossibleEarning.collectAsState()
 
     // Lives and points/cash
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(15.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(15.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Row() {
             for (i in 1..lives) {
-                Icon(painter = painterResource(id = R.drawable.baseline_heart_24), contentDescription = "Full Heart")
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_heart_24),
+                    contentDescription = null // decorative
+                )
             }
-            for (i in 1..5-lives) {
-                Icon(painter = painterResource(id = R.drawable.baseline_heart_border_24), contentDescription = "Empty Heart")
+            for (i in 1..5 - lives) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_heart_border_24),
+                    contentDescription = null // decorative
+                )
             }
+
+            // For accessibility
+            Text(
+                text = stringResource(R.string.lives).replace("{lives}", lives.toString()),
+                color = Color.Transparent
+            )
         }
-        Text(text = "$points$")
+        Text(text = stringResource(R.string.points).replace("{points}", points.toString()))
     }
 
     // Status message
     when (status) {
         GameStatus.PLAYING -> {
-            Text(text = "Playing to win $possibleEarnings$ per letter")
+            Text(
+                text = stringResource(R.string.gamestatus_playing).replace(
+                    "{possibleEarnings}",
+                    possibleEarnings.toString()
+                )
+            )
         }
 
         GameStatus.WON -> {
-            Text(text = "Game Won! Play again?")
+            Text(text = stringResource(R.string.gamestatus_won))
         }
 
         GameStatus.LOST -> {
-            Text(text = "Game Lost... Try again?")
+            Text(text = stringResource(R.string.gamestatus_lost))
         }
 
         GameStatus.DONE -> {
-            Text(text = "Wow, you completed them all! Try again?")
+            Text(text = stringResource(R.string.gamestatus_done))
         }
 
         GameStatus.WHEEL_SPINNING -> {
-            Text(text = "Spinning...")
+            Text(text = stringResource(R.string.gamestatus_wheelspinning))
         }
 
         GameStatus.TURN_DONE_CORRECT -> {
-            Text(text = "Correct! Spin again!")
+            Text(text = stringResource(R.string.gamestatus_correct))
         }
 
         GameStatus.TURN_DONE_WRONG -> {
-            Text(text = "Wrong! Try again!")
+            Text(text = stringResource(R.string.gamestatus_wrong))
         }
 
         GameStatus.TURN_DONE_LOST -> {
-            Text(text = "Lost a turn! Try again!")
+            Text(text = stringResource(R.string.gamestatus_turnlost))
         }
 
         else -> {}

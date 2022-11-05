@@ -44,7 +44,7 @@ fun CharBox(char: Char?) {
                     shape = RoundedCornerShape(25)
                 )
                 .width(40.dp),
-            color = Color.Unspecified,
+            color = Color.Transparent,
             fontSize = 10.em,
             textAlign = TextAlign.Center
         )
