@@ -24,6 +24,7 @@ fun StatusBar(viewModel: PlayerViewModel) {
     val points by viewModel.points.collectAsState()
     val possibleEarnings by viewModel.currentPossibleEarning.collectAsState()
 
+    // Lives and points/cash
     Row(modifier = Modifier
         .fillMaxWidth()
         .padding(15.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
@@ -38,9 +39,10 @@ fun StatusBar(viewModel: PlayerViewModel) {
         Text(text = "$points$")
     }
 
+    // Status message
     when (status) {
         GameStatus.PLAYING -> {
-            Text(text = "Playing to win $possibleEarnings$ per. letter")
+            Text(text = "Playing to win $possibleEarnings$ per letter")
         }
 
         GameStatus.WON -> {

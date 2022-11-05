@@ -17,8 +17,10 @@ import androidx.compose.ui.unit.em
 fun CharBox(char: Char?) {
     if (char != null) {
         if (char == ' ') {
+            // Fill with a spacer to simulate a space
             Spacer(modifier = Modifier.width(20.dp))
         } else {
+            // Show the letter
             Text(
                 text = char.toString(),
                 modifier = Modifier
@@ -33,6 +35,7 @@ fun CharBox(char: Char?) {
             )
         }
     } else {
+        // We fill in an actual char, but make it invisible, just to get the correct spacing
         Text(
             text = "_",
             modifier = Modifier

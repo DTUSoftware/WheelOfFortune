@@ -27,10 +27,12 @@ import dk.dtu.s215827.wheeloffortune.R
 fun Wheel(viewModel: PlayerViewModel) {
     val rotation = remember { mutableStateOf(0f) }
 
+    // Composable to make the wheel spin and update the rotation
     WheelSpinEffect(viewModel = viewModel) {
         rotation.value = it
     }
 
+    // The actual wheel
     Column(
         Modifier
             .fillMaxWidth()
@@ -50,6 +52,7 @@ fun Wheel(viewModel: PlayerViewModel) {
             modifier = Modifier
                 .fillMaxWidth()
                 .rotate(rotation.value)
+                .size(350.dp)
         )
     }
 }

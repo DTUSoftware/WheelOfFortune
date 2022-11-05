@@ -12,9 +12,13 @@ import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 fun ActionButton(viewModel: PlayerViewModel) {
     val status by viewModel.status.collectAsState()
 
+    // If playing, show word guesser
     if (status == GameStatus.PLAYING) {
         WordGuessing(viewModel)
-    } else if (status != GameStatus.DONE && status != GameStatus.WHEEL_SPINNING) {
+    }
+    // If not done playing (finished all words), and wheel not already spinning,
+    // allow starting a new game or spinning the wheel
+    else if (status != GameStatus.DONE && status != GameStatus.WHEEL_SPINNING) {
         if (status == GameStatus.TURN_DONE_CORRECT || status == GameStatus.TURN_DONE_WRONG || status == GameStatus.TURN_DONE_LOST || status == GameStatus.NEW_GAME) {
             Button(onClick = { viewModel.spinWheel() }) {
                 Text(text = "Spin Wheel")
@@ -24,7 +28,10 @@ fun ActionButton(viewModel: PlayerViewModel) {
                 Text(text = if (status != GameStatus.NOT_PLAYING) "Play Again" else "Play")
             }
         }
-    } else if (status == GameStatus.DONE) {
+    }
+    // If done with all words, give new message, and onClick,
+    // repopulate the words and start from scratch
+    else if (status == GameStatus.DONE) {
         Button(onClick = { viewModel.populateWords(); viewModel.newGame() }) {
             Text(text = "Repopulate and start a new game?")
         }

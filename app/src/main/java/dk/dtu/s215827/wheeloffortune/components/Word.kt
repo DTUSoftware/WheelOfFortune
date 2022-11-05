@@ -20,6 +20,8 @@ fun Word(viewModel: PlayerViewModel) {
     val category by viewModel.currentCategory.collectAsState()
     val revealedChars by viewModel.revealedLetters.collectAsState()
 
+    // Lazy row with word from viewModel
+    // Sadly this can overflow, and couldn't find a real solution to that overflow online
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally)
@@ -30,6 +32,7 @@ fun Word(viewModel: PlayerViewModel) {
         }
     }
 
+    // Show category under word
     if (category.isNotEmpty()) {
         Spacer(modifier = Modifier.height(5.dp))
         Text(text = category)

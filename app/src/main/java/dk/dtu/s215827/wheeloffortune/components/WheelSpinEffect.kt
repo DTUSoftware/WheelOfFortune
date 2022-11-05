@@ -17,10 +17,11 @@ import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 // https://nascimpact.medium.com/jetpack-compose-working-with-rotation-animation-aeddc5899b28
 @Composable
 fun WheelSpinEffect(viewModel: PlayerViewModel, onRotationChange: (rotation: Float) -> Unit) {
-    val currentWheelPosition by viewModel.wheelPosition.collectAsState()
-    val currentWheelResult by viewModel.currentWheelResult.collectAsState()
-    val status by viewModel.status.collectAsState()
+    val wheelPosition by viewModel.wheelPosition.collectAsState() // to tell where to spin the wheel (0 to 360)
+    val wheelResult by viewModel.currentWheelResult.collectAsState() // for applying result after animation
+    val status by viewModel.status.collectAsState() // to listen to status change
 
+    // Variables used for the actual animation of the rotation
     var currentRotation by remember { mutableStateOf(0f) }
     val rotation = remember { Animatable(currentRotation) }
 
@@ -32,7 +33,7 @@ fun WheelSpinEffect(viewModel: PlayerViewModel, onRotationChange: (rotation: Flo
         if (status == GameStatus.WHEEL_SPINNING) {
             rotation.animateTo(
                 // Spin from current rotation to reset, then two times around, and to wanted position
-                targetValue = currentRotation + (360 - (currentRotation % 360)) + 360 * 2 - currentWheelPosition,
+                targetValue = currentRotation + (360 - (currentRotation % 360)) + 360 * 2 - wheelPosition,
                 animationSpec = tween(
                     durationMillis = 2500,
                     easing = LinearOutSlowInEasing
@@ -42,11 +43,8 @@ fun WheelSpinEffect(viewModel: PlayerViewModel, onRotationChange: (rotation: Flo
                 onRotationChange(currentRotation)
             }
 
-            currentWheelResult.applyResult(viewModel)
-
-            if (currentWheelResult.type == 0) {
-                viewModel.setPlaying()
-            }
+            // Apply the result when the animation is done
+            wheelResult.applyResult(viewModel)
         }
     }
 }
