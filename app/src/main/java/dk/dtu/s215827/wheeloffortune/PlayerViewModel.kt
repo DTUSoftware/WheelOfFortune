@@ -1,13 +1,6 @@
 package dk.dtu.s215827.wheeloffortune
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONObject
@@ -16,12 +9,15 @@ import kotlin.random.Random
 enum class GameStatus {
     ERROR,
     NOT_PLAYING,
+    NEW_GAME,
     PLAYING,
     WON,
     LOST,
     DONE,
     WHEEL_SPINNING,
-    TURN_LOST
+    TURN_DONE_CORRECT,
+    TURN_DONE_WRONG,
+    TURN_DONE_LOST
 }
 
 class WheelResult(var type: Int, var points: Int? = null) {
@@ -71,7 +67,7 @@ class PlayerViewModel : ViewModel() {
 
         // populate wheel positions
         wheelPositions[0f] = WheelResult(0, 750)
-        wheelPositions[15f] = WheelResult(1) // lose a turn
+        wheelPositions[15f] = WheelResult(0, 500)
         wheelPositions[30f] = WheelResult(0, 400)
         wheelPositions[45f] = WheelResult(0, 300)
         wheelPositions[60f] = WheelResult(0, 900)
@@ -121,7 +117,8 @@ class PlayerViewModel : ViewModel() {
     fun newGame() {
         setLives(5)
         setPoints(0)
-        spinWheel()
+        newWord()
+        setNewGame()
     }
 
     fun spinWheel() {
@@ -140,9 +137,12 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun loseATurn() {
-        this.status.value = GameStatus.TURN_LOST
+        setTurnDoneLost()
         subtractLives(1)
+    }
 
+    fun setNewGame() {
+        this.status.value = GameStatus.NEW_GAME
     }
 
     fun setNotPlaying() {
@@ -165,6 +165,18 @@ class PlayerViewModel : ViewModel() {
 
     fun setDone() {
         this.status.value = GameStatus.DONE
+    }
+
+    fun setTurnDoneCorrect() {
+        this.status.value = GameStatus.TURN_DONE_CORRECT
+    }
+
+    fun setTurnDoneWrong() {
+        this.status.value = GameStatus.TURN_DONE_WRONG
+    }
+
+    fun setTurnDoneLost() {
+        this.status.value = GameStatus.TURN_DONE_LOST
     }
 
     fun checkDone(): Boolean {
@@ -202,17 +214,22 @@ class PlayerViewModel : ViewModel() {
                 val char = guessWord[0]
                 if (isCharInWord(char) && !isRevealed(char)) {
                     revealChar(char)
-                    addPoints(currentPossibleEarning.value)
+                    addPoints(currentPossibleEarning.value * countCharInWord(char))
                     setPossibleEarnings(0)
 
                     if (revealedLetters.value.size == currentWord.value.replace(" ", "").toList()
                             .distinct().size
                     ) {
                         setWon()
+                    } else {
+                        setTurnDoneCorrect()
                     }
                 } else {
+                    setTurnDoneWrong()
                     subtractLives(1)
                 }
+                // This is not used in this game, since you only guess a single char,
+                // but by enabling more than one char in the text-field, this could be used
             } else {
                 if (guessWord.replace(" ", "") == currentWord.value.replace(" ", "")) {
                     // reveal all chars
@@ -221,23 +238,27 @@ class PlayerViewModel : ViewModel() {
                         val char = guessWord[i]
                         if (isCharInWord(char) && !isRevealed(char)) {
                             revealChar(char)
+                            addPoints(currentPossibleEarning.value * countCharInWord(char))
                         }
                         i++
                     }
-                    addPoints(currentPossibleEarning.value)
                     setPossibleEarnings(0)
                     setWon()
                 } else {
+                    setTurnDoneWrong()
                     subtractLives(1)
                 }
             }
-
         }
     }
 
     fun isCharInWord(char: Char): Boolean {
         // ignoreCase technically not needed now
         return this.currentWord.value.contains(char, ignoreCase = true)
+    }
+
+    fun countCharInWord(char: Char): Int {
+        return this.currentWord.value.count { it == char }
     }
 
     fun isRevealed(char: Char): Boolean {
@@ -265,7 +286,7 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun doBankruptcy() {
-        this.status.value = GameStatus.TURN_LOST
+        setTurnDoneLost()
         this.points.value = 0
 //        setLost()
     }

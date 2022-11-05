@@ -109,7 +109,7 @@ fun Wheel(rotation: Float = 0f) {
             modifier = Modifier.size(50.dp)
         )
         Image(
-            painter = painterResource(id = R.drawable.wheel_of_fortune),
+            painter = painterResource(id = R.drawable.wheel_of_fortune_noloseaturn),
             contentDescription = "Wheel of Fortune",
             modifier = Modifier
                 .fillMaxWidth()
@@ -129,6 +129,7 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
     val points by viewModel.points.collectAsState()
     val currentWheelPosition by viewModel.wheelPosition.collectAsState()
     val currentWheelResult by viewModel.currentWheelResult.collectAsState()
+    val currentPossibleEarnings by viewModel.currentPossibleEarning.collectAsState()
 
     var guess by remember { mutableStateOf("") }
 
@@ -136,8 +137,9 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
     var currentRotation by remember { mutableStateOf(0f) }
     val rotation = remember { Animatable(currentRotation) }
 
-    LaunchedEffect(currentWheelPosition) {
-        // Keep the check for status because otherwise the wheel will spin at startup
+    // We perform a launched effect for status, to spin the wheel at WHEEL_SPINNING
+    LaunchedEffect(status) {
+        // Check for the WHEEL_SPINNING status
         if (status == GameStatus.WHEEL_SPINNING) {
             // https://nascimpact.medium.com/jetpack-compose-working-with-rotation-animation-aeddc5899b28
             rotation.animateTo(
@@ -155,25 +157,28 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
 
             if (currentWheelResult.type == 0) {
                 viewModel.setPlaying()
-                viewModel.newWord()
             }
         }
     }
 
     Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
 //        Text(text = "$currentWheelPosition = ${currentWheelResult.type}: ${currentWheelResult.points}")
-        Text(text = "$lives lives | $points points")
+        Text(text = "$lives lives | $points$")
 
 //        Text(text = currentWord)
 //        Text(text = revealedChars.toString())
 
         when (status) {
+            GameStatus.PLAYING -> {
+                Text(text = "Playing to win $currentPossibleEarnings$ per. letter")
+            }
+
             GameStatus.WON -> {
-                Text(text = "CORRECT!")
+                Text(text = "Game Won! Play again?")
             }
 
             GameStatus.LOST -> {
-                Text(text = "GAME LOST...")
+                Text(text = "Game Lost... Try again?")
             }
 
             GameStatus.DONE -> {
@@ -182,6 +187,18 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
 
             GameStatus.WHEEL_SPINNING -> {
                 Text(text = "Spinning...")
+            }
+
+            GameStatus.TURN_DONE_CORRECT -> {
+                Text(text = "Correct! Spin again!")
+            }
+
+            GameStatus.TURN_DONE_WRONG -> {
+                Text(text = "Wrong! Try again!")
+            }
+
+            GameStatus.TURN_DONE_LOST -> {
+                Text(text = "Lost a turn! Try again!")
             }
 
             else -> {}
@@ -210,10 +227,13 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                             viewModel.guess(guess)
                             guess = ""
                         } else {
-                            guess = it.uppercase()
+                            // Only take the first letter, if it is a letter
+                            val letter = it.uppercase()[0].toString()
+                            if (letter.matches(Regex("[a-zA-z\\s]*"))) {
+                                guess = letter
+                            }
                         }
-                    }
-                    else {
+                    } else {
                         guess = it
                     }
                 })
@@ -224,7 +244,7 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                     Text(text = "Guess")
                 }
             } else if (status != GameStatus.DONE && status != GameStatus.WHEEL_SPINNING) {
-                if (status == GameStatus.WON || status == GameStatus.TURN_LOST) {
+                if (status == GameStatus.TURN_DONE_CORRECT || status == GameStatus.TURN_DONE_WRONG || status == GameStatus.TURN_DONE_LOST || status == GameStatus.NEW_GAME) {
                     Button(onClick = { viewModel.spinWheel() }) {
                         Text(text = "Spin Wheel")
                     }
