@@ -11,8 +11,8 @@ android {
         applicationId "dk.dtu.s215827.wheeloffortune"
         minSdk 28
         targetSdk 33
-        versionCode 3
-        versionName "1.0.0"
+        versionCode 4
+        versionName "1.1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
