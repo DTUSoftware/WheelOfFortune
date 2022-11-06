@@ -1,3 +1,21 @@
 <resources>
     <string name="app_name">s215827 Wheel of Fortune</string>
+    <string name="guess_button">Guess</string>
+    <string name="wheel_of_fortune_imagedescriptor">Wheel of Fortune</string>
+    <string name="full_heart_imagedescriptor">Full Heart</string>
+    <string name="empty_heart_imagedescriptor">Empty Heart</string>
+    <string name="gamestatus_playing">Playing to win {possibleEarnings}$ per letter</string>
+    <string name="gamestatus_won">Game Won! Play again?</string>
+    <string name="gamestatus_lost">Game Lost... Try again?</string>
+    <string name="gamestatus_done">Wow, you completed them all! Try again?</string>
+    <string name="gamestatus_wheelspinning">Spinning...</string>
+    <string name="gamestatus_correct">Correct! Spin again!</string>
+    <string name="gamestatus_wrong">Wrong! Try again!</string>
+    <string name="gamestatus_turnlost">Lost a turn! Try again!</string>
+    <string name="points">{points}$</string>
+    <string name="lives">{lives} lives</string>
+    <string name="spin_wheel_button">Spin Wheel</string>
+    <string name="play_again_button">Play Again</string>
+    <string name="play_button">Play</string>
+    <string name="repopulate_button">Repopulate and start a new game?</string>
 </resources>

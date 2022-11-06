@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONObject
 import kotlin.random.Random
 
+// Status of the game
 enum class GameStatus {
     ERROR,
     NOT_PLAYING,
@@ -20,17 +21,22 @@ enum class GameStatus {
     TURN_DONE_LOST
 }
 
+// Class for possible wheel results
 class WheelResult(var type: Int, var points: Int? = null) {
     fun applyResult(viewModel: PlayerViewModel) {
         when (type) {
+            // Point result
             0 -> {
                 points?.let { viewModel.setPossibleEarnings(it) }
+                viewModel.setPlaying()
             }
 
+            // Lose a turn result
             1 -> {
                 viewModel.loseATurn()
             }
 
+            // Bankruptcy result
             2 -> {
                 viewModel.doBankruptcy()
             }
@@ -39,6 +45,7 @@ class WheelResult(var type: Int, var points: Int? = null) {
 }
 
 class PlayerViewModel : ViewModel() {
+    // States used for stateflow
     val currentWord = MutableStateFlow("")
     val currentCategory = MutableStateFlow("")
     val currentPossibleEarning = MutableStateFlow(0)
@@ -49,18 +56,11 @@ class PlayerViewModel : ViewModel() {
     val wheelPosition = MutableStateFlow(0f)
     val currentWheelResult = MutableStateFlow(WheelResult(-1))
 
-    // https://nascimpact.medium.com/jetpack-compose-working-with-rotation-animation-aeddc5899b28
-    var currentRotation = MutableStateFlow(0f)
-    val rotation = MutableStateFlow(Animatable(currentRotation.value))
-
-    val wheelPositions = HashMap<Float, WheelResult>()
-
-//    val alreadyPlayedWords = MutableStateFlow(emptyList<String>())
-
-    val randomSeed = Random(System.currentTimeMillis())
-
-    var wordsTotal = 0
-    var wordsMap = HashMap<String, List<String>>()
+    // Possible wheel positions
+    private val wheelPositions = HashMap<Float, WheelResult>()
+    private val randomSeed = Random(System.currentTimeMillis())
+    private var wordsTotal = 0
+    private var wordsMap = HashMap<String, List<String>>()
 
     init {
         populateWords()
@@ -305,5 +305,4 @@ class PlayerViewModel : ViewModel() {
     fun setLives(lives: Int) {
         this.lives.value = lives
     }
-
 }
