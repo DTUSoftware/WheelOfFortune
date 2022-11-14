@@ -52,7 +52,7 @@ fun Word(viewModel: PlayerViewModel) {
         ) {
             items(word.length) {
                 val char = word[it]
-                CharBox(if (char == ' ' || revealedChars.contains(char)) char else null)
+                CharBox(if (char == ' ' || revealedChars.contains(char) || status == GameStatus.LOST) char else null)
             }
         }
 
