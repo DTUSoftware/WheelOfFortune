@@ -5,13 +5,11 @@ import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import dk.dtu.s215827.wheeloffortune.GameStatus
-import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 import dk.dtu.s215827.wheeloffortune.WheelResult
 
 // Heavily inspired by:

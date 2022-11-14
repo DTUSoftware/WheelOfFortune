@@ -3,12 +3,9 @@ package dk.dtu.s215827.wheeloffortune.components
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.res.stringResource
 import dk.dtu.s215827.wheeloffortune.Action
 import dk.dtu.s215827.wheeloffortune.GameStatus
-import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 import dk.dtu.s215827.wheeloffortune.R
 
 @Composable

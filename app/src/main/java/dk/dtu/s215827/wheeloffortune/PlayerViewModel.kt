@@ -1,6 +1,5 @@
 package dk.dtu.s215827.wheeloffortune
 
-import androidx.compose.animation.core.Animatable
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
