@@ -39,7 +39,7 @@ fun Word(
         // Lazy row with word from viewModel
         // Sadly this can overflow, and couldn't find a real solution to that overflow online
         LazyVerticalStaggeredGrid(
-            modifier = Modifier.padding(5.dp),
+            modifier = Modifier.padding(15.dp),
             columns = StaggeredGridCells.Adaptive(minSize = 30.dp),
 //        contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
