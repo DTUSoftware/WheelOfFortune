@@ -21,24 +21,31 @@ enum class GameStatus {
     TURN_DONE_LOST
 }
 
+// Actions from button or wheel
+enum class Action {
+    NEW_GAME,
+    SPIN,
+    REPOPULATE
+}
+
 // Class for possible wheel results
-class WheelResult(var type: Int, var points: Int? = null) {
-    fun applyResult(viewModel: PlayerViewModel) {
+class WheelResult(var viewModel: PlayerViewModel? = null, var type: Int, var points: Int? = null) {
+    fun applyResult() {
         when (type) {
             // Point result
             0 -> {
-                points?.let { viewModel.setPossibleEarnings(it) }
-                viewModel.setPlaying()
+                points?.let { viewModel?.setPossibleEarnings(it) }
+                viewModel?.setPlaying()
             }
 
             // Lose a turn result
             1 -> {
-                viewModel.loseATurn()
+                viewModel?.loseATurn()
             }
 
             // Bankruptcy result
             2 -> {
-                viewModel.doBankruptcy()
+                viewModel?.doBankruptcy()
             }
         }
     }
@@ -54,7 +61,7 @@ class PlayerViewModel : ViewModel() {
     val points = MutableStateFlow(0)
     val status = MutableStateFlow(GameStatus.NOT_PLAYING)
     val wheelPosition = MutableStateFlow(0f)
-    val currentWheelResult = MutableStateFlow(WheelResult(-1))
+    val currentWheelResult = MutableStateFlow(WheelResult(null, -1))
 
     // Possible wheel positions
     private val wheelPositions = HashMap<Float, WheelResult>()
@@ -66,30 +73,30 @@ class PlayerViewModel : ViewModel() {
         populateWords()
 
         // populate wheel positions
-        wheelPositions[0f] = WheelResult(0, 750)
-        wheelPositions[15f] = WheelResult(0, 500)
-        wheelPositions[30f] = WheelResult(0, 400)
-        wheelPositions[45f] = WheelResult(0, 300)
-        wheelPositions[60f] = WheelResult(0, 900)
-        wheelPositions[75f] = WheelResult(2) // bankrupt
-        wheelPositions[90f] = WheelResult(0, 550)
-        wheelPositions[105f] = WheelResult(0, 200)
-        wheelPositions[120f] = WheelResult(0, 350)
-        wheelPositions[135f] = WheelResult(0, 900)
-        wheelPositions[150f] = WheelResult(0, 150)
-        wheelPositions[165f] = WheelResult(0, 150)
-        wheelPositions[180f] = WheelResult(2) // bankrupt
-        wheelPositions[195f] = WheelResult(0, 600)
-        wheelPositions[210f] = WheelResult(0, 250)
-        wheelPositions[225f] = WheelResult(0, 300)
-        wheelPositions[240f] = WheelResult(0, 700)
-        wheelPositions[255f] = WheelResult(0, 100)
-        wheelPositions[270f] = WheelResult(0, 450)
-        wheelPositions[285f] = WheelResult(0, 5000)
-        wheelPositions[300f] = WheelResult(0, 800)
-        wheelPositions[315f] = WheelResult(0, 250)
-        wheelPositions[330f] = WheelResult(0, 600)
-        wheelPositions[345f] = WheelResult(0, 350)
+        wheelPositions[0f] = WheelResult(this, 0, 750)
+        wheelPositions[15f] = WheelResult(this, 0, 500)
+        wheelPositions[30f] = WheelResult(this, 0, 400)
+        wheelPositions[45f] = WheelResult(this, 0, 300)
+        wheelPositions[60f] = WheelResult(this, 0, 900)
+        wheelPositions[75f] = WheelResult(this, 2) // bankrupt
+        wheelPositions[90f] = WheelResult(this, 0, 550)
+        wheelPositions[105f] = WheelResult(this, 0, 200)
+        wheelPositions[120f] = WheelResult(this, 0, 350)
+        wheelPositions[135f] = WheelResult(this, 0, 900)
+        wheelPositions[150f] = WheelResult(this, 0, 150)
+        wheelPositions[165f] = WheelResult(this, 0, 150)
+        wheelPositions[180f] = WheelResult(this, 2) // bankrupt
+        wheelPositions[195f] = WheelResult(this, 0, 600)
+        wheelPositions[210f] = WheelResult(this, 0, 250)
+        wheelPositions[225f] = WheelResult(this, 0, 300)
+        wheelPositions[240f] = WheelResult(this, 0, 700)
+        wheelPositions[255f] = WheelResult(this, 0, 100)
+        wheelPositions[270f] = WheelResult(this, 0, 450)
+        wheelPositions[285f] = WheelResult(this, 0, 5000)
+        wheelPositions[300f] = WheelResult(this, 0, 800)
+        wheelPositions[315f] = WheelResult(this, 0, 250)
+        wheelPositions[330f] = WheelResult(this, 0, 600)
+        wheelPositions[345f] = WheelResult(this, 0, 350)
 
         // Set current position to 0 degrees
         currentWheelResult.value = wheelPositions[0f]!!

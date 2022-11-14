@@ -18,7 +18,7 @@ import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 import dk.dtu.s215827.wheeloffortune.R
 
 @Composable
-fun WordGuessing(viewModel: PlayerViewModel) {
+fun WordGuessing(onGuess: (guess: String) -> Unit) {
     var guess by remember { mutableStateOf("") }
 
     Row(
@@ -27,14 +27,14 @@ fun WordGuessing(viewModel: PlayerViewModel) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         // Field for inputting a guess
-        TextGuessField(viewModel) {
+        TextGuessField(onGuess = { onGuess(it) }) {
             // Update guess
             guess = it
         }
 
         // Submission button
         Button(onClick = {
-            viewModel.guess(guess)
+            onGuess(guess)
             guess = ""
         }) {
             Text(text = stringResource(R.string.guess_button))

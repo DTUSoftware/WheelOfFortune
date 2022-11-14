@@ -23,12 +23,12 @@ import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 import dk.dtu.s215827.wheeloffortune.R
 
 @Composable
-fun StatusBar(viewModel: PlayerViewModel) {
-    val status by viewModel.status.collectAsState()
-    val lives by viewModel.lives.collectAsState()
-    val points by viewModel.points.collectAsState()
-    val possibleEarnings by viewModel.currentPossibleEarning.collectAsState()
-
+fun StatusBar(
+    status: GameStatus,
+    lives: Int,
+    points: Int,
+    possibleEarnings: Int
+) {
     var statusMessage = ""
 
     // Status message

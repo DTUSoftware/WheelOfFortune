@@ -12,15 +12,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import dk.dtu.s215827.wheeloffortune.GameStatus
 import dk.dtu.s215827.wheeloffortune.PlayerViewModel
+import dk.dtu.s215827.wheeloffortune.WheelResult
 
 // Heavily inspired by:
 // https://nascimpact.medium.com/jetpack-compose-working-with-rotation-animation-aeddc5899b28
 @Composable
-fun WheelSpinEffect(viewModel: PlayerViewModel, onRotationChange: (rotation: Float) -> Unit) {
-    val wheelPosition by viewModel.wheelPosition.collectAsState() // to tell where to spin the wheel (0 to 360)
-    val wheelResult by viewModel.currentWheelResult.collectAsState() // for applying result after animation
-    val status by viewModel.status.collectAsState() // to listen to status change
-
+fun WheelSpinEffect(
+    status: GameStatus,
+    wheelPosition: Float,
+    wheelResult: WheelResult,
+    onRotationChange: (rotation: Float) -> Unit
+) {
     // Variables used for the actual animation of the rotation
     var currentRotation by remember { mutableStateOf(0f) }
     val rotation = remember { Animatable(currentRotation) }
@@ -44,7 +46,7 @@ fun WheelSpinEffect(viewModel: PlayerViewModel, onRotationChange: (rotation: Flo
             }
 
             // Apply the result when the animation is done
-            wheelResult.applyResult(viewModel)
+            wheelResult.applyResult()
         }
     }
 }

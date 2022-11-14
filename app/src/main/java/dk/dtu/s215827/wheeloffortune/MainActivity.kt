@@ -38,11 +38,21 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun WheelOfFortune(viewModel: PlayerViewModel) {
+    val status by viewModel.status.collectAsState() // to listen to status change and show status
+    val lives by viewModel.lives.collectAsState()
+    val points by viewModel.points.collectAsState()
+    val possibleEarnings by viewModel.currentPossibleEarning.collectAsState()
+    val wheelPosition by viewModel.wheelPosition.collectAsState() // to tell where to spin the wheel (0 to 360)
+    val wheelResult by viewModel.currentWheelResult.collectAsState() // for applying result after animation
+    val word by viewModel.currentWord.collectAsState()
+    val category by viewModel.currentCategory.collectAsState()
+    val revealedChars by viewModel.revealedLetters.collectAsState()
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        StatusBar(viewModel)
+        StatusBar(status, lives, points, possibleEarnings)
 
         // TODO: Fix landscape orientation - it looks kinda wonky, would be nice to be able to scroll,
         // but it gets angry because of the staggeredlazylist
@@ -55,14 +65,30 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    Wheel(viewModel)
+                    Wheel(status, wheelPosition, wheelResult) {
+                        when (it) {
+                            Action.SPIN -> {
+                                viewModel.spinWheel()
+                            }
+
+                            Action.NEW_GAME -> {
+                                viewModel.newGame()
+                            }
+
+                            Action.REPOPULATE -> {
+                                viewModel.populateWords(); viewModel.newGame()
+                            }
+                        }
+                    }
 
 //                    Spacer(modifier = Modifier.height(20.dp))
 
                     // no need for the button, you can just click
 //                    ActionButton(viewModel)
                 }
-                Word(viewModel)
+                Word(word, category, revealedChars, status) {
+                    viewModel.guess(it)
+                }
             }
 
         } else {
@@ -71,13 +97,43 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                Wheel(viewModel)
+                Wheel(status, wheelPosition, wheelResult) {
+                    when (it) {
+                        Action.SPIN -> {
+                            viewModel.spinWheel()
+                        }
 
-                Word(viewModel)
+                        Action.NEW_GAME -> {
+                            viewModel.newGame()
+                        }
+
+                        Action.REPOPULATE -> {
+                            viewModel.populateWords(); viewModel.newGame()
+                        }
+                    }
+                }
+
+                Word(word, category, revealedChars, status) {
+                    viewModel.guess(it)
+                }
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                ActionButton(viewModel)
+                ActionButton(status) {
+                    when (it) {
+                        Action.SPIN -> {
+                            viewModel.spinWheel()
+                        }
+
+                        Action.NEW_GAME -> {
+                            viewModel.newGame()
+                        }
+
+                        Action.REPOPULATE -> {
+                            viewModel.populateWords(); viewModel.newGame()
+                        }
+                    }
+                }
             }
         }
     }

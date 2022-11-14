@@ -28,13 +28,16 @@ import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Word(viewModel: PlayerViewModel) {
-    val word by viewModel.currentWord.collectAsState()
-    val category by viewModel.currentCategory.collectAsState()
-    val revealedChars by viewModel.revealedLetters.collectAsState()
-    val status by viewModel.status.collectAsState()
-
-    val size = if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) 0.8f else 1.0f
+fun Word(
+    word: String,
+    category: String,
+    revealedChars: List<Char>,
+    status: GameStatus,
+    onGuess: (guess: String) -> Unit
+) {
+    val size =
+        if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) 0.8f
+        else 1.0f
 
     Column(
         modifier = Modifier.fillMaxWidth(size),
@@ -54,9 +57,13 @@ fun Word(viewModel: PlayerViewModel) {
                 val char = word[it]
                 // pass char if space (CharBox parses that as no box), if revealed, if lost or if char is not guessable ( . ! ? - )
                 CharBox(
-                    if (char == ' ' || revealedChars.contains(char) || status == GameStatus.LOST || !char.toString()
-                            .matches(Regex("[a-zA-z\\s]*"))
-                    ) char else null
+                    if (
+                        char == ' ' ||
+                        revealedChars.contains(char) ||
+                        status == GameStatus.LOST ||
+                        !char.toString().matches(Regex("[a-zA-z\\s]*"))
+                    ) char
+                    else null
                 )
             }
         }
@@ -69,7 +76,9 @@ fun Word(viewModel: PlayerViewModel) {
         // If playing, show word guesser
         if (status == GameStatus.PLAYING) {
             Spacer(Modifier.height(5.dp))
-            WordGuessing(viewModel)
+            WordGuessing() {
+                onGuess(it)
+            }
         }
     }
 }
