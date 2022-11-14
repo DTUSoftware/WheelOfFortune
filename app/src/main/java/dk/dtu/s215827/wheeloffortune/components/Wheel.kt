@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -32,7 +34,7 @@ import dk.dtu.s215827.wheeloffortune.R
 fun Wheel(viewModel: PlayerViewModel) {
     val rotation = remember { mutableStateOf(0f) }
     val status by viewModel.status.collectAsState()
-    val spinnable = remember { mutableStateOf(false) }
+    val spinnable = remember { mutableStateOf(true) }
 
     // Composable to make the wheel spin and update the rotation
     WheelSpinEffect(viewModel = viewModel) {
@@ -40,7 +42,7 @@ fun Wheel(viewModel: PlayerViewModel) {
     }
 
     LaunchedEffect(status) {
-        spinnable.value = (status == GameStatus.TURN_DONE_CORRECT || status == GameStatus.TURN_DONE_WRONG || status == GameStatus.TURN_DONE_LOST || status == GameStatus.NEW_GAME)
+        spinnable.value = (status == GameStatus.TURN_DONE_CORRECT || status == GameStatus.TURN_DONE_WRONG || status == GameStatus.TURN_DONE_LOST || status == GameStatus.NEW_GAME || status == GameStatus.NOT_PLAYING)
     }
 
     // The actual wheel
@@ -61,7 +63,22 @@ fun Wheel(viewModel: PlayerViewModel) {
                 .rotate(rotation.value)
                 .size(250.dp)
                 .clickable(enabled = spinnable.value) {
-                    viewModel.spinWheel()
+                    // Same as action button, basically
+
+                    // If not done playing (finished all words), and wheel not already spinning,
+                    // allow starting a new game or spinning the wheel
+                    if (status != GameStatus.DONE && status != GameStatus.WHEEL_SPINNING && status != GameStatus.PLAYING) {
+                        if (status == GameStatus.TURN_DONE_CORRECT || status == GameStatus.TURN_DONE_WRONG || status == GameStatus.TURN_DONE_LOST || status == GameStatus.NEW_GAME) {
+                            viewModel.spinWheel()
+                        } else {
+                            viewModel.newGame()
+                        }
+                    }
+                    // If done with all words, give new message, and onClick,
+                    // repopulate the words and start from scratch
+                    else if (status == GameStatus.DONE) {
+                        viewModel.populateWords(); viewModel.newGame()
+                    }
                 }
         )
     }

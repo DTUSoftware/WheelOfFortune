@@ -34,7 +34,7 @@ fun Word(viewModel: PlayerViewModel) {
     val revealedChars by viewModel.revealedLetters.collectAsState()
     val status by viewModel.status.collectAsState()
 
-    val size = if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) 0.5f else 1.0f
+    val size = if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) 0.8f else 1.0f
 
     Column(
         modifier = Modifier.fillMaxWidth(size),
@@ -47,12 +47,13 @@ fun Word(viewModel: PlayerViewModel) {
             modifier = Modifier.padding(5.dp),
             columns = StaggeredGridCells.Adaptive(minSize = 30.dp),
 //        contentPadding = PaddingValues(16.dp),
-            horizontalArrangement = Arrangement.spacedBy(5.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
             verticalArrangement = Arrangement.spacedBy(5.dp)
         ) {
             items(word.length) {
                 val char = word[it]
-                CharBox(if (char == ' ' || revealedChars.contains(char) || status == GameStatus.LOST) char else null)
+                // pass char if space (CharBox parses that as no box), if revealed, if lost or if char is not guessable ( . ! ? - )
+                CharBox(if (char == ' ' || revealedChars.contains(char) || status == GameStatus.LOST || !char.toString().matches(Regex("[a-zA-z\\s]*"))) char else null)
             }
         }
 

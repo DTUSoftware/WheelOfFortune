@@ -44,7 +44,8 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
     ) {
         StatusBar(viewModel)
 
-        // TODO: Fix landscape orientation - it looks kinda wonky
+        // TODO: Fix landscape orientation - it looks kinda wonky, would be nice to be able to scroll,
+        // but it gets angry because of the staggeredlazylist
         if (LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE) {
             Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly) {
                 Column(
@@ -55,7 +56,8 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
 
 //                    Spacer(modifier = Modifier.height(20.dp))
 
-                    ActionButton(viewModel)
+                    // no need for the button, you can just click
+//                    ActionButton(viewModel)
                 }
                 Word(viewModel)
             }
