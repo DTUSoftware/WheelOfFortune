@@ -91,6 +91,7 @@ class PlayerViewModel : ViewModel() {
         wheelPositions[330f] = WheelResult(0, 600)
         wheelPositions[345f] = WheelResult(0, 350)
 
+        // Set current position to 0 degrees
         currentWheelResult.value = wheelPositions[0f]!!
     }
 
@@ -210,8 +211,10 @@ class PlayerViewModel : ViewModel() {
 
     fun guess(guessWord: String) {
         if (guessWord.isNotEmpty()) {
+            // If a single char was guessed
             if (guessWord.length == 1) {
                 val char = guessWord[0]
+                // if it is in the word and not already revealed, reveal it - else wrong
                 if (isCharInWord(char) && !isRevealed(char)) {
                     revealChar(char)
                     addPoints(currentPossibleEarning.value * countCharInWord(char))

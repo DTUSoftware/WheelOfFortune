@@ -21,7 +21,11 @@ import dk.dtu.s215827.wheeloffortune.R
 fun WordGuessing(viewModel: PlayerViewModel) {
     var guess by remember { mutableStateOf("") }
 
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         // Field for inputting a guess
         TextGuessField(viewModel) {
             // Update guess

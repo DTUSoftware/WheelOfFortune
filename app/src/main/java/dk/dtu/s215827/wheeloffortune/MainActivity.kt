@@ -47,7 +47,10 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
         // TODO: Fix landscape orientation - it looks kinda wonky, would be nice to be able to scroll,
         // but it gets angry because of the staggeredlazylist
         if (LocalConfiguration.current.orientation == ORIENTATION_LANDSCAPE) {
-            Row(modifier = Modifier.fillMaxSize(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
@@ -62,8 +65,7 @@ fun WheelOfFortune(viewModel: PlayerViewModel) {
                 Word(viewModel)
             }
 
-        }
-        else {
+        } else {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,

@@ -53,7 +53,11 @@ fun Word(viewModel: PlayerViewModel) {
             items(word.length) {
                 val char = word[it]
                 // pass char if space (CharBox parses that as no box), if revealed, if lost or if char is not guessable ( . ! ? - )
-                CharBox(if (char == ' ' || revealedChars.contains(char) || status == GameStatus.LOST || !char.toString().matches(Regex("[a-zA-z\\s]*"))) char else null)
+                CharBox(
+                    if (char == ' ' || revealedChars.contains(char) || status == GameStatus.LOST || !char.toString()
+                            .matches(Regex("[a-zA-z\\s]*"))
+                    ) char else null
+                )
             }
         }
 
