@@ -3,6 +3,8 @@ package dk.dtu.s215827.wheeloffortune
 import androidx.compose.animation.core.Animatable
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import org.json.JSONObject
 import kotlin.random.Random
 
@@ -52,16 +54,37 @@ class WheelResult(var viewModel: PlayerViewModel? = null, var type: Int, var poi
 }
 
 class PlayerViewModel : ViewModel() {
-    // States used for stateflow
-    val currentWord = MutableStateFlow("")
-    val currentCategory = MutableStateFlow("")
-    val currentPossibleEarning = MutableStateFlow(0)
-    val revealedLetters = MutableStateFlow(emptyList<Char>())
-    val lives = MutableStateFlow(0)
-    val points = MutableStateFlow(0)
-    val status = MutableStateFlow(GameStatus.NOT_PLAYING)
-    val wheelPosition = MutableStateFlow(0f)
-    val currentWheelResult = MutableStateFlow(WheelResult(null, -1))
+    // We would like a unidirectional data flow, where the UI can pass events, and we update the state
+
+    // States used for stateflow - we make sure we can only edit them through the viewmodel
+    // and then we use the StateFlow for passing the values to the UI, with read-only access
+    // https://developer.android.com/codelabs/basic-android-kotlin-compose-viewmodel-and-state#4
+    private val _currentWord = MutableStateFlow("")
+    val currentWord: StateFlow<String> = _currentWord.asStateFlow()
+
+    private val _currentCategory = MutableStateFlow("")
+    val currentCategory: StateFlow<String> = _currentCategory.asStateFlow()
+
+    private val _currentPossibleEarning = MutableStateFlow(0)
+    val currentPossibleEarning: StateFlow<Int> = _currentPossibleEarning.asStateFlow()
+
+    private val _revealedLetters = MutableStateFlow(emptyList<Char>())
+    val revealedLetters: StateFlow<List<Char>> = _revealedLetters.asStateFlow()
+
+    private val _lives = MutableStateFlow(0)
+    val lives: StateFlow<Int> = _lives.asStateFlow()
+
+    private val _points = MutableStateFlow(0)
+    val points: StateFlow<Int> = _points.asStateFlow()
+
+    private val _status = MutableStateFlow(GameStatus.NOT_PLAYING)
+    val status: StateFlow<GameStatus> = _status.asStateFlow()
+
+    private val _wheelPosition = MutableStateFlow(0f)
+    val wheelPosition: StateFlow<Float> = _wheelPosition.asStateFlow()
+
+    private val _currentWheelResult = MutableStateFlow(WheelResult(null, -1))
+    val currentWheelResult: StateFlow<WheelResult> = _currentWheelResult.asStateFlow()
 
     // Possible wheel positions
     private val wheelPositions = HashMap<Float, WheelResult>()
@@ -99,7 +122,7 @@ class PlayerViewModel : ViewModel() {
         wheelPositions[345f] = WheelResult(this, 0, 350)
 
         // Set current position to 0 degrees
-        currentWheelResult.value = wheelPositions[0f]!!
+        _currentWheelResult.value = wheelPositions[0f]!!
     }
 
     fun populateWords() {
@@ -130,13 +153,13 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun spinWheel() {
-        status.value = GameStatus.WHEEL_SPINNING
+        _status.value = GameStatus.WHEEL_SPINNING
 
-        wheelPosition.value = (wheelPositions.keys).random(randomSeed).toFloat()
+        _wheelPosition.value = (wheelPositions.keys).random(randomSeed).toFloat()
 
         val wheelResult = getWheelResult()
         if (wheelResult != null) {
-            currentWheelResult.value = wheelResult
+            _currentWheelResult.value = wheelResult
         }
     }
 
@@ -150,41 +173,41 @@ class PlayerViewModel : ViewModel() {
     }
 
     fun setNewGame() {
-        this.status.value = GameStatus.NEW_GAME
+        this._status.value = GameStatus.NEW_GAME
     }
 
     fun setNotPlaying() {
-        this.status.value = GameStatus.NOT_PLAYING
+        this._status.value = GameStatus.NOT_PLAYING
     }
 
     fun setPlaying() {
-        this.status.value = GameStatus.PLAYING
+        this._status.value = GameStatus.PLAYING
     }
 
     fun setWon() {
-        this.status.value = GameStatus.WON
+        this._status.value = GameStatus.WON
         checkDone()
     }
 
     fun setLost() {
-        this.status.value = GameStatus.LOST
+        this._status.value = GameStatus.LOST
         checkDone()
     }
 
     fun setDone() {
-        this.status.value = GameStatus.DONE
+        this._status.value = GameStatus.DONE
     }
 
     fun setTurnDoneCorrect() {
-        this.status.value = GameStatus.TURN_DONE_CORRECT
+        this._status.value = GameStatus.TURN_DONE_CORRECT
     }
 
     fun setTurnDoneWrong() {
-        this.status.value = GameStatus.TURN_DONE_WRONG
+        this._status.value = GameStatus.TURN_DONE_WRONG
     }
 
     fun setTurnDoneLost() {
-        this.status.value = GameStatus.TURN_DONE_LOST
+        this._status.value = GameStatus.TURN_DONE_LOST
     }
 
     fun checkDone(): Boolean {
@@ -197,15 +220,15 @@ class PlayerViewModel : ViewModel() {
 
     fun newWord() {
         if (!checkDone()) {
-            this.revealedLetters.value = emptyList()
+            this._revealedLetters.value = emptyList()
             val category = wordsMap.keys.elementAt((0 until wordsMap.size).random(randomSeed))
             val words = wordsMap[category]
 
             if (!words.isNullOrEmpty()) {
                 val word = words[(words.indices).random(randomSeed)]
 
-                this.currentWord.value = word.uppercase()
-                this.currentCategory.value = category
+                this._currentWord.value = word.uppercase()
+                this._currentCategory.value = category
 //                this.alreadyPlayedWords.value = this.alreadyPlayedWords.value.plus(this.currentWord.value)
                 wordsMap[category] = words.minus(word)
                 if (wordsMap[category]?.isEmpty() == true) {
@@ -224,10 +247,10 @@ class PlayerViewModel : ViewModel() {
                 // if it is in the word and not already revealed, reveal it - else wrong
                 if (isCharInWord(char) && !isRevealed(char)) {
                     revealChar(char)
-                    addPoints(currentPossibleEarning.value * countCharInWord(char))
+                    addPoints(_currentPossibleEarning.value * countCharInWord(char))
                     setPossibleEarnings(0)
 
-                    if (revealedLetters.value.size == currentWord.value.replace(" ", "").toList()
+                    if (_revealedLetters.value.size == _currentWord.value.replace(" ", "").toList()
                             .distinct().size
                     ) {
                         setWon()
@@ -241,14 +264,14 @@ class PlayerViewModel : ViewModel() {
                 // This is not used in this game, since you only guess a single char,
                 // but by enabling more than one char in the text-field, this could be used
             } else {
-                if (guessWord.replace(" ", "") == currentWord.value.replace(" ", "")) {
+                if (guessWord.replace(" ", "") == _currentWord.value.replace(" ", "")) {
                     // reveal all chars
                     var i = 0
                     while (i < guessWord.length) {
                         val char = guessWord[i]
                         if (isCharInWord(char) && !isRevealed(char)) {
                             revealChar(char)
-                            addPoints(currentPossibleEarning.value * countCharInWord(char))
+                            addPoints(_currentPossibleEarning.value * countCharInWord(char))
                         }
                         i++
                     }
@@ -264,55 +287,55 @@ class PlayerViewModel : ViewModel() {
 
     fun isCharInWord(char: Char): Boolean {
         // ignoreCase technically not needed now
-        return this.currentWord.value.contains(char, ignoreCase = true)
+        return this._currentWord.value.contains(char, ignoreCase = true)
     }
 
     fun countCharInWord(char: Char): Int {
-        return this.currentWord.value.count { it == char }
+        return this._currentWord.value.count { it == char }
     }
 
     fun isRevealed(char: Char): Boolean {
-        return this.revealedLetters.value.contains(char)
+        return this._revealedLetters.value.contains(char)
     }
 
     fun revealChar(char: Char) {
-        this.revealedLetters.value = this.revealedLetters.value.plus(char)
+        this._revealedLetters.value = this._revealedLetters.value.plus(char)
     }
 
     fun addPoints(points: Int) {
-        this.points.value += points
+        this._points.value += points
     }
 
     fun subtractPoints(points: Int) {
-        this.points.value -= points
+        this._points.value -= points
     }
 
     fun setPoints(points: Int) {
-        this.points.value = points
+        this._points.value = points
     }
 
     fun setPossibleEarnings(points: Int) {
-        this.currentPossibleEarning.value = points
+        this._currentPossibleEarning.value = points
     }
 
     fun doBankruptcy() {
         setTurnDoneLost()
-        this.points.value = 0
+        this._points.value = 0
 //        setLost()
     }
 
     fun addLives(lives: Int) {
-        this.lives.value += lives
+        this._lives.value += lives
     }
 
     fun subtractLives(lives: Int) {
-        this.lives.value -= lives
-        if (this.lives.value <= 0) {
+        this._lives.value -= lives
+        if (this._lives.value <= 0) {
             setLost()
         }
     }
 
     fun setLives(lives: Int) {
-        this.lives.value = lives
+        this._lives.value = lives
     }
 }
