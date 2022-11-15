@@ -9,8 +9,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,16 +17,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dk.dtu.s215827.wheeloffortune.GameStatus
-import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 import dk.dtu.s215827.wheeloffortune.R
 
 @Composable
-fun StatusBar(viewModel: PlayerViewModel) {
-    val status by viewModel.status.collectAsState()
-    val lives by viewModel.lives.collectAsState()
-    val points by viewModel.points.collectAsState()
-    val possibleEarnings by viewModel.currentPossibleEarning.collectAsState()
-
+fun StatusBar(
+    status: GameStatus,
+    lives: Int,
+    points: Int,
+    possibleEarnings: Int
+) {
     var statusMessage = ""
 
     // Status message

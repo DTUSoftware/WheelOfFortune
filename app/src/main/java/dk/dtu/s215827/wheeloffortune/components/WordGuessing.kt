@@ -14,23 +14,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 import dk.dtu.s215827.wheeloffortune.R
 
 @Composable
-fun WordGuessing(viewModel: PlayerViewModel) {
+fun WordGuessing(onGuess: (guess: String) -> Unit) {
     var guess by remember { mutableStateOf("") }
 
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         // Field for inputting a guess
-        TextGuessField(viewModel) {
+        TextGuessField(onGuess = { onGuess(it) }) {
             // Update guess
             guess = it
         }
 
         // Submission button
         Button(onClick = {
-            viewModel.guess(guess)
+            onGuess(guess)
             guess = ""
         }) {
             Text(text = stringResource(R.string.guess_button))

@@ -10,17 +10,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import dk.dtu.s215827.wheeloffortune.PlayerViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TextGuessField(viewModel: PlayerViewModel, onNewGuess: (guess: String) -> Unit) {
+fun TextGuessField(
+    onGuess: (guess: String) -> Unit,
+    onNewGuess: (guess: String) -> Unit
+) {
     var guess by remember { mutableStateOf("") }
     TextField(modifier = Modifier.width(100.dp), value = guess, onValueChange = {
         if (it.isNotEmpty()) {
             // Submit guess on newline / enter
             if (it[it.length - 1] == '\n') {
-                viewModel.guess(guess)
+                onGuess(guess)
                 guess = ""
             } else {
                 // Only take the first letter, if it is a letter
